@@ -46,8 +46,8 @@ class Focus {
 		}
 		const { x: old_relative_x, y: old_relative_y } = this.relative_position_focus_pointer ? this.relative_position_focus_pointer.getPosition() : { x: 0, y: 0 };
 		const { x: new_relative_x, y: new_relative_y } = relative_position_focus_pointer.getPosition();
-		const DeltaX = new_relative_x - old_relative_x;
-		const DeltaY = new_relative_y - old_relative_y;
+		const DeltaX = old_relative_x - new_relative_x;
+		const DeltaY = old_relative_y - new_relative_y;
 		this.changePosition(DeltaX, DeltaY);
 		this.relative_position_focus_pointer = relative_position_focus_pointer;
 	}

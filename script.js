@@ -1,12 +1,9 @@
 import { Focus } from './focus.js';
 import { Condition } from './condition.js';
+import { resizeCanvas, drawFocuses } from './utils/canvasUtils.js';
 
 const canvas = document.getElementById('treeCanvas');
-function resizeCanvas() {
-	canvas.width = window.innerWidth * 0.7;
-	canvas.height = window.innerHeight * 0.9;
-}
-resizeCanvas();
+resizeCanvas(canvas);
 const context = canvas.getContext('2d');
 const width = canvas.width;
 const height = canvas.height;
@@ -23,23 +20,6 @@ const snapToGrid = (value, gridSize) => {
   return Math.round(value / gridSize) * gridSize;
 };
 
-const drawGrid = () => {
-  context.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid-line-color');
-  context.lineWidth = 0.5;
-  for (let x = 0; x < width; x += gridSize) {
-    context.beginPath();
-    context.moveTo(x, 0);
-    context.lineTo(x, height);
-    context.stroke();
-  }
-  for (let y = 0; y < height; y += gridSize) {
-    context.beginPath();
-    context.moveTo(0, y);
-    context.lineTo(width, y);
-    context.stroke();
-  }
-};
-
 const focusWidth = 4; // in grid squares
 const focusHeight = 4; // in grid squares
 
@@ -51,64 +31,8 @@ const focuses = [new Focus("Root")];
 focuses.push(Focus.fromPointer(focuses[0]));
 focuses[1].name = 'children';
 
-// Draw focuses as rectangles with names
-const drawFocuses = () => {
-  context.clearRect(0, 0, width, height);
-  drawGrid();
-  
-  // Draw lines first
-  focuses.forEach((focus) => {
-    focus.prerequisite.forEach(group => {
-      const isDotted = group.length > 1;
-      group.forEach(prerequisite => {
-        const startPos = {
-          x: focus.getPosition().x * gridSize + focusPixelWidth / 2,
-          y: focus.getPosition().y * gridSize
-        };
-        const endPos = {
-          x: prerequisite.getPosition().x * gridSize + focusPixelWidth / 2,
-          y: prerequisite.getPosition().y * gridSize + focusPixelHeight
-        };
-        context.beginPath();
-        context.moveTo(startPos.x, startPos.y);
-        context.lineTo(endPos.x, endPos.y);
-        context.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border-color');
-        if (isDotted) {
-          context.setLineDash([5, 5]);
-        } else {
-          context.setLineDash([]);
-        }
-        context.stroke();
-		context.setLineDash([]);
-      });
-    });
-  });
+drawFocuses(context, focuses, gridSize, focusPixelWidth, focusPixelHeight);
 
-  // Draw focuses
-  focuses.forEach((focus) => {
-    const pos = {
-      x: focus.getPosition().x * gridSize,
-      y: focus.getPosition().y * gridSize
-    };
-    context.fillStyle = getComputedStyle(document.body).getPropertyValue('--focus-background-color');
-    context.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border-color');
-    context.fillRect(pos.x, pos.y, focusPixelWidth, focusPixelHeight);
-    context.strokeRect(pos.x, pos.y, focusPixelWidth, focusPixelHeight);
-    const img = new Image();
-    img.src = focus.icon;
-    img.onload = () => {
-      context.drawImage(img, pos.x + focusPixelWidth/2 -  focusPixelHeight*0.4, pos.y + 5, focusPixelHeight*0.8, focusPixelHeight*0.8);
-    };
-    context.fillStyle = getComputedStyle(document.body).getPropertyValue('--focus-text-color');
-	context.textAlign = 'center';
-	context.textBaseline = 'bottom';
-	context.font = '12px Arial';
-	
-	context.fillText(focus.name, pos.x + focusPixelWidth / 2, pos.y + focusPixelHeight);
-  });
-};
-
-drawFocuses();
 let isDragging = false;
 let dragFocus = null;
 let offsetX, offsetY;
@@ -270,14 +194,25 @@ const loadAvailabilityConditions = (focus) => {
 const saveAvailabilityConditions = (focus) => {
   focus.available = [];
   const conditions = availabilityConditionsContainer.querySelectorAll('.availability-condition');
-  conditions.forEach(conditionElement => {
+  
+  const parseCondition = (conditionElement) => {
     const condition = new Condition();
     condition.type = conditionElement.querySelector('.condition-type').value;
     const inputs = Condition.getConditionTypes()[condition.type];
     inputs.forEach(input => {
-      condition.inputs[input] = conditionElement.querySelector(`.condition-${input}`).value;
+      if (input === 'conditions') {
+        const subConditionsContainer = conditionElement.querySelector('.sub-conditions');
+        const subConditions = subConditionsContainer.querySelectorAll('.availability-condition');
+        condition.inputs[input] = Array.from(subConditions).map(parseCondition);
+      } else {
+        condition.inputs[input] = conditionElement.querySelector(`.condition-${input}`).value;
+      }
     });
-    focus.available.push(condition);
+    return condition;
+  };
+
+  conditions.forEach(conditionElement => {
+    focus.available.push(parseCondition(conditionElement));
   });
 };
 
@@ -323,7 +258,7 @@ saveChangesButton.addEventListener('click', () => {
     selectedFocus.setRelativeFocus(focuses[relativePositionSelect.value]);
     savePrerequisites(selectedFocus);
     saveAvailabilityConditions(selectedFocus);
-    drawFocuses();
+    drawFocuses(context, focuses, gridSize, focusPixelWidth, focusPixelHeight);
     closeInspectorMenu();
   }
 });
@@ -334,7 +269,7 @@ createNextFocusButton.addEventListener('click', () => {
   if (selectedFocus) {
     const newFocus = Focus.fromPointer(selectedFocus);
     focuses.push(newFocus);
-    drawFocuses();
+    drawFocuses(context, focuses, gridSize, focusPixelWidth, focusPixelHeight);
     closeInspectorMenu();
   }
 });
@@ -374,7 +309,7 @@ canvas.addEventListener('mousemove', (e) => {
       mouseY = snapToGrid(mouseY, gridSize);
     }
     dragFocus.setPosition(mouseX / gridSize, mouseY / gridSize);
-    drawFocuses();
+    drawFocuses(context, focuses, gridSize, focusPixelWidth, focusPixelHeight);
   }
 });
 
@@ -386,7 +321,7 @@ canvas.addEventListener('mouseup', () => {
 const toggleDarkModeButton = document.getElementById('toggleDarkMode');
 toggleDarkModeButton.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode');
-  drawFocuses();
+  drawFocuses(context, focuses, gridSize, focusPixelWidth, focusPixelHeight);
 });
 
 const chooseIconButton = document.getElementById('chooseIcon');
@@ -416,7 +351,7 @@ const populateIconGrid = async () => {
     img.addEventListener('click', () => {
       if (selectedFocus) {
         selectedFocus.icon = `icons/${icon}`;
-        drawFocuses();
+        drawFocuses(context, focuses, gridSize, focusPixelWidth, focusPixelHeight);
         iconOverlay.style.display = 'none';
       }
     });
