@@ -40,8 +40,8 @@ const drawGrid = () => {
   }
 };
 
-const focusWidth = 5; // in grid squares
-const focusHeight = 3; // in grid squares
+const focusWidth = 4; // in grid squares
+const focusHeight = 4; // in grid squares
 
 const focusPixelWidth = focusWidth * gridSize;
 const focusPixelHeight = focusHeight * gridSize;
@@ -55,6 +55,35 @@ focuses[1].name = 'children';
 const drawFocuses = () => {
   context.clearRect(0, 0, width, height);
   drawGrid();
+  
+  // Draw lines first
+  focuses.forEach((focus) => {
+    focus.prerequisite.forEach(group => {
+      const isDotted = group.length > 1;
+      group.forEach(prerequisite => {
+        const startPos = {
+          x: focus.getPosition().x * gridSize + focusPixelWidth / 2,
+          y: focus.getPosition().y * gridSize
+        };
+        const endPos = {
+          x: prerequisite.getPosition().x * gridSize + focusPixelWidth / 2,
+          y: prerequisite.getPosition().y * gridSize + focusPixelHeight
+        };
+        context.beginPath();
+        context.moveTo(startPos.x, startPos.y);
+        context.lineTo(endPos.x, endPos.y);
+        context.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border-color');
+        if (isDotted) {
+          context.setLineDash([5, 5]);
+        } else {
+          context.setLineDash([]);
+        }
+        context.stroke();
+      });
+    });
+  });
+
+  // Draw focuses
   focuses.forEach((focus) => {
     const pos = {
       x: focus.getPosition().x * gridSize,
@@ -73,6 +102,7 @@ const drawFocuses = () => {
 	context.textAlign = 'center';
 	context.textBaseline = 'bottom';
 	context.font = '12px Arial';
+	
 	context.fillText(focus.name, pos.x + focusPixelWidth / 2, pos.y + focusPixelHeight);
   });
 };
@@ -92,31 +122,33 @@ let selectedFocus = null;
 const prerequisitesContainer = document.getElementById('prerequisites');
 const addPrerequisiteGroupButton = document.getElementById('addPrerequisiteGroup');
 
-const updatePrerequisiteOptions = (selectElement) => {
+const updatePrerequisiteOptions = (selectElement, currentFocus) => {
   selectElement.innerHTML = '';
   focuses.forEach((focus, index) => {
-    const option = document.createElement('option');
-    option.value = index;
-    option.text = focus.name;
-    selectElement.appendChild(option);
+    if (focus !== currentFocus) {
+      const option = document.createElement('option');
+      option.value = index;
+      option.text = focus.name;
+      selectElement.appendChild(option);
+    }
   });
 };
 
-const addPrerequisite = (groupElement) => {
+const addPrerequisite = (groupElement, currentFocus) => {
 	const selectElement = document.createElement('select');
 	selectElement.classList.add('prerequisite');
-	updatePrerequisiteOptions(selectElement);
+	updatePrerequisiteOptions(selectElement, currentFocus);
 	groupElement.insertBefore(selectElement, groupElement.querySelector('.add-prerequisite'));
 };
 
 const addPrerequisiteGroup = () => {
 	const groupElement = document.createElement('div');
 	groupElement.classList.add('prerequisite-group');
-	addPrerequisite(groupElement);
+	addPrerequisite(groupElement, selectedFocus);
 	const addButton = document.createElement('button');
 	addButton.textContent = '+';
 	addButton.classList.add('add-prerequisite');
-	addButton.addEventListener('click', () => addPrerequisite(groupElement));
+	addButton.addEventListener('click', () => addPrerequisite(groupElement, selectedFocus));
 	const deleteButton = document.createElement('button');
 	deleteButton.textContent = '-';
 	deleteButton.classList.add('delete-prerequisite');
@@ -143,14 +175,14 @@ const loadPrerequisites = (focus) => {
     group.forEach(prerequisite => {
       const selectElement = document.createElement('select');
       selectElement.classList.add('prerequisite');
-      updatePrerequisiteOptions(selectElement);
+      updatePrerequisiteOptions(selectElement, focus);
       selectElement.value = focuses.indexOf(prerequisite);
       groupElement.appendChild(selectElement);
     });
     const addButton = document.createElement('button');
     addButton.textContent = '+';
     addButton.classList.add('add-prerequisite');
-    addButton.addEventListener('click', () => addPrerequisite(groupElement));
+    addButton.addEventListener('click', () => addPrerequisite(groupElement, focus));
     const deleteButton = document.createElement('button');
     deleteButton.textContent = '-';
     deleteButton.classList.add('delete-prerequisite');

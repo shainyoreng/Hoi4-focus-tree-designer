@@ -14,7 +14,7 @@ canvas {
 
 button {
 	position: relative;
-	width: 15em;
+	width: 49%;
 	padding: 1em;
 	background-color: var(--button-background-color);
 	color: var(--button-text-color);
@@ -72,7 +72,7 @@ button:hover {
 }
 
 #inspectorMenu button {
-	width: 100%;
+	width: 49%;
 	padding: 0.4em;
 	background-color: var(--button-background-color);
 	color: var(--button-text-color);
