@@ -217,6 +217,47 @@ button:hover {
   background-color: var(--button-hover-background-color);
 }
 
+.availability-condition {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 4px;
+  border: 0.1em solid var(--grouping-color);
+  border-top: none;
+  border-bottom: none;
+}
+.condition-inputs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.add-condition, .delete-condition {
+  width: 2em;
+  max-width: 20px;
+  height: 2em;
+  padding: 0.5em;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
+  border: none;
+  border-radius: 0.3em;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-left: 0.2em;
+}
+
+.add-condition:hover, .delete-condition:hover {
+  background-color: var(--button-hover-background-color);
+}
+
+.sub-conditions {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+}
+
 /* Light mode colors */
 :root {
 	--background-color: #ffffff;
@@ -235,6 +276,7 @@ body.dark-mode {
 	--background-color: #040D12;
 	--text-color: #ffffff;
 	--border-color: #ffffff;
+	--grouping-color: #50727B;
 	--button-background-color: #344955;
 	--button-text-color: #ffffff;
 	--button-hover-background-color: #50727B;

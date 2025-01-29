@@ -190,7 +190,7 @@ const loadPrerequisites = (focus) => {
     deleteButton.addEventListener('click', () => {
       const prerequisites = groupElement.querySelectorAll('.prerequisite');
       if (prerequisites.length > 1) {
-        prerequisites[prerequisites.length - 1].remove();
+        prerequisites[prquisites.length - 1].remove();
       } else {
         groupElement.remove();
       }
@@ -211,6 +211,73 @@ const savePrerequisites = (focus) => {
       prerequisites.push(focuses[select.value]);
     });
     focus.prerequisite.push(prerequisites);
+  });
+};
+
+const availabilityConditionsContainer = document.getElementById('availabilityConditions');
+
+const addCondition = (container, condition = new Condition("Always"), isRoot = false) => {
+  const conditionElement = document.createElement('div');
+  conditionElement.classList.add('availability-condition');
+
+  const typeSelect = document.createElement('select');
+  typeSelect.classList.add('condition-type');
+  Object.keys(Condition.getConditionTypes()).forEach(type => {
+    const option = document.createElement('option');
+    option.value = type;
+    option.text = type;
+    typeSelect.appendChild(option);
+  });
+  typeSelect.value = condition.type;
+  conditionElement.appendChild(typeSelect);
+
+  const inputsContainer = document.createElement('div');
+  inputsContainer.classList.add('condition-inputs');
+  conditionElement.appendChild(inputsContainer);
+
+  const updateInputs = () => {
+    inputsContainer.innerHTML = '';
+    const inputs = Condition.getConditionTypes()[typeSelect.value];
+    inputs.forEach(input => {
+      const inputElement = Condition.createInputElement(input, condition.inputs[input]);
+      inputsContainer.appendChild(inputElement);
+      if (input === 'conditions') {
+        const addSubConditionButton = document.createElement('button');
+        addSubConditionButton.textContent = '+';
+        addSubConditionButton.classList.add('add-condition');
+        addSubConditionButton.addEventListener('click', () => addCondition(inputElement));
+        inputsContainer.appendChild(addSubConditionButton);
+      }
+    });
+  };
+
+  typeSelect.addEventListener('change', updateInputs);
+  updateInputs();
+
+  container.appendChild(conditionElement);
+};
+
+
+const loadAvailabilityConditions = (focus) => {
+  availabilityConditionsContainer.innerHTML = '';
+  if (focus.available.length > 0) {
+    addCondition(availabilityConditionsContainer, new Condition(focus.available[0].type, focus.available[0].inputs), true);
+  } else {
+    addCondition(availabilityConditionsContainer, new Condition("Always"), true);
+  }
+};
+
+const saveAvailabilityConditions = (focus) => {
+  focus.available = [];
+  const conditions = availabilityConditionsContainer.querySelectorAll('.availability-condition');
+  conditions.forEach(conditionElement => {
+    const condition = new Condition();
+    condition.type = conditionElement.querySelector('.condition-type').value;
+    const inputs = Condition.getConditionTypes()[condition.type];
+    inputs.forEach(input => {
+      condition.inputs[input] = conditionElement.querySelector(`.condition-${input}`).value;
+    });
+    focus.available.push(condition);
   });
 };
 
@@ -238,6 +305,7 @@ const openInspectorMenu = (focus) => {
   });
 
   loadPrerequisites(focus);
+  loadAvailabilityConditions(focus);
 
   inspectorMenu.style.display = 'block';
 };
@@ -254,6 +322,7 @@ saveChangesButton.addEventListener('click', () => {
     selectedFocus.name = focusNameInput.value;
     selectedFocus.setRelativeFocus(focuses[relativePositionSelect.value]);
     savePrerequisites(selectedFocus);
+    saveAvailabilityConditions(selectedFocus);
     drawFocuses();
     closeInspectorMenu();
   }

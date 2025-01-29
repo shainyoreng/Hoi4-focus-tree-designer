@@ -21,26 +21,32 @@
         <select id="relativePosition">
           <!-- Options will be populated dynamically -->
         </select>
-		<label for="prerequisites">Prerequisites:</label>
-		<div id="prerequisites">
-		
-		</div>
-		<button id="addPrerequisiteGroup">Add Prerequisite Group</button>
-		<br><br>
-        
+        <label for="prerequisites">Prerequisites:</label>
+        <div id="prerequisites">
+          <!-- Prerequisite groups will be populated dynamically -->
+        </div>
+        <button id="addPrerequisiteGroup">Add Prerequisite Group</button>
+        <br><br>
+        <label for="availabilityConditions">Availability Conditions:</label>
+        <div id="availabilityConditions">
+          <div class="availability-condition">
+            <label for="conditionType">Condition Type:</label>
+            <select id="conditionType">
+              <option value="always">Always</option>
+              <!-- Other condition types will be populated dynamically -->
+            </select>
+          </div>
+        </div>
+        <br><br>
         <button id="createNextFocus">Create Next Focus</button>
         <button id="chooseIcon">Choose Icon</button>
-		<button id="saveChanges">Save Changes</button>
-		
+        <button id="saveChanges">Save Changes</button>
       </div>
-	  
     </div>
-	
-	<div class="main">
-		<h1>Hoi4 Focus Tree Designer</h1>
-		<canvas id="treeCanvas" width="800" height="600"></canvas>
-	</div>
-
+    <div class="main">
+      <h1>Hoi4 Focus Tree Designer</h1>
+      <canvas id="treeCanvas" width="800" height="600"></canvas>
+    </div>
   </div>
   <div id="iconOverlay" class="overlay">
     <div class="overlay-content">
