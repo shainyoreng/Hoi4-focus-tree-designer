@@ -2,12 +2,17 @@ import { Focus } from './focus.js';
 import { Condition } from './condition.js';
 
 const canvas = document.getElementById('treeCanvas');
+function resizeCanvas() {
+	canvas.width = window.innerWidth*0.7;
+	canvas.height = window.innerHeight*0.9;
+}
+resizeCanvas();
 const context = canvas.getContext('2d');
 const width = canvas.width;
 const height = canvas.height;
 
 const gridSize = 20;
-let gridSnap = false;
+let gridSnap = true;
 
 const toggleGridSnapButton = document.getElementById('toggleGridSnap');
 toggleGridSnapButton.addEventListener('click', () => {
@@ -70,6 +75,72 @@ let isDragging = false;
 let dragFocus = null;
 let offsetX, offsetY;
 
+const inspectorMenu = document.getElementById('inspectorMenu');
+const focusNameInput = document.getElementById('focusName');
+const relativePositionSelect = document.getElementById('relativePosition');
+const saveChangesButton = document.getElementById('saveChanges');
+
+let selectedFocus = null;
+
+const openInspectorMenu = (focus) => {
+	selectedFocus = focus;
+	console.log(selectedFocus.name);
+	focusNameInput.value = focus.name;
+	relativePositionSelect.innerHTML = '';
+	
+	const noneOption = document.createElement('option');
+	noneOption.value = null;
+	noneOption.text = 'None';
+	relativePositionSelect.appendChild(noneOption);
+
+	focuses.forEach((f,index) => {
+		if (f !== focus) {
+			const option = document.createElement('option');
+			option.value = index;
+			option.text = f.name;
+			if (focus.relative_position_focus_pointer === f) {
+				option.selected = true;
+			}
+			relativePositionSelect.appendChild(option);
+		}
+	});
+
+	inspectorMenu.style.display = 'block';
+};
+
+const closeInspectorMenu = () => {
+  inspectorMenu.style.display = 'none';
+  selectedFocus = null;
+};
+
+saveChangesButton.addEventListener('click', () => {
+  if (selectedFocus) {
+    selectedFocus.name = focusNameInput.value;
+	console.log(focuses[relativePositionSelect.value].name);
+    selectedFocus.setRelativeFocus(focuses[relativePositionSelect.value]);
+    drawFocuses();
+    closeInspectorMenu();
+  }
+});
+
+const createNextFocusButton = document.getElementById('createNextFocus');
+
+createNextFocusButton.addEventListener('click', () => {
+  if (selectedFocus) {
+    const newFocus = Focus.fromPointer(selectedFocus);
+    focuses.push(newFocus);
+    drawFocuses();
+    closeInspectorMenu();
+  }
+});
+
+// Close inspector menu when clicking outside of it
+document.addEventListener('click', (e) => {
+  if (!inspectorMenu.contains(e.target) && !canvas.contains(e.target)) {
+    closeInspectorMenu();
+  }
+});
+
 canvas.addEventListener('mousedown', (e) => {
 	const mouseX = e.offsetX;
 	const mouseY = e.offsetY;
@@ -84,6 +155,7 @@ canvas.addEventListener('mousedown', (e) => {
 			dragFocus = focus;
 			offsetX = mouseX - pos.x;
 			offsetY = mouseY - pos.y;
+			openInspectorMenu(focus);
 		}
 	});
 });

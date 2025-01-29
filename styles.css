@@ -1,69 +1,135 @@
 body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  background-color: var(--background-color);
-  color: var(--text-color);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	margin: 0;
+	background-color: var(--background-color);
+	color: var(--text-color);
 }
 
 canvas {
-  border: 1px solid var(--border-color);
+	border: 0.1em solid var(--border-color);
 }
 
 button {
-  position: absolute;
-  top: 10px;
-  left: 0px;
-  width: 150px;
-  padding: 10px;
-  background-color: var(--button-background-color);
-  color: var(--button-text-color);
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+	position: relative;
+	width: 15em;
+	padding: 1em;
+	background-color: var(--button-background-color);
+	color: var(--button-text-color);
+	border: none;
+	border-radius: 0.3em;
+	cursor: pointer;
+	margin-bottom: 0.5em; /* Add margin to prevent overlapping */
 }
 
 button:hover {
-  background-color: var(--button-hover-background-color);
+	background-color: var(--button-hover-background-color);
 }
 
 .focus {
-  width: 100px;
-  height: 50px;
-  border: 1px solid var(--border-color);
+	width: 6.25em;
+	height: 3.125em;
+	border: 0.1em solid var(--border-color);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--focus-background-color);
+	color: var(--focus-text-color);
+	font-size: 0.875em;
+	text-align: center;
+}
+
+#inspectorMenu {
+	display: none;
+	position: relative;
+	background-color: var(--background-color);
+	border: 0.1em solid var(--border-color);
+	padding: 1em;
+	border-radius: 0.3em;
+	box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.1);
+}
+
+#inspectorMenu h3 {
+	margin-top: 0;
+}
+
+#inspectorMenu label {
+	display: block;
+	margin-bottom: 0.3em;
+}
+
+#inspectorMenu input,
+#inspectorMenu select {
+	width: 100%;
+	padding: 0.3em;
+	margin-bottom: 0.6em;
+	border: 0.1em solid var(--border-color);
+	border-radius: 0.2em;
+	background-color: var(--background-color);
+	color: var(--text-color);
+}
+
+#inspectorMenu button {
+	width: 100%;
+	padding: 1em;
+	background-color: var(--button-background-color);
+	color: var(--button-text-color);
+	border: none;
+	border-radius: 0.3em;
+	cursor: pointer;
+}
+
+#inspectorMenu button:hover {
+	background-color: var(--button-hover-background-color);
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  width: 20%;
+  background-color: var(--background-color);
+  border-right: 1px solid var(--border-color);
+}
+
+.main {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--focus-background-color);
-  color: var(--focus-text-color);
-  font-size: 14px;
-  text-align: center;
+  width: 80%;
+  background-color: var(--background-color);
 }
 
 /* Light mode colors */
 :root {
-  --background-color: #ffffff;
-  --text-color: #000000;
-  --border-color: #000000;
-  --button-background-color: #007bff;
-  --button-text-color: #ffffff;
-  --button-hover-background-color: #0056b3;
-  --grid-line-color: #e0e0e0;
-  --focus-background-color: #f0f0f0;
-  --focus-text-color: #000000;
+	--background-color: #ffffff;
+	--text-color: #000000;
+	--border-color: #000000;
+	--button-background-color: #007bff;
+	--button-text-color: #ffffff;
+	--button-hover-background-color: #0056b3;
+	--grid-line-color: #e0e0e0;
+	--focus-background-color: #f0f0f0;
+	--focus-text-color: #000000;
 }
 
 /* Dark mode colors */
 body.dark-mode {
-  --background-color: #333333;
-  --text-color: #ffffff;
-  --border-color: #ffffff;
-  --button-background-color: #444444;
-  --button-text-color: #ffffff;
-  --button-hover-background-color: #666666;
-  --grid-line-color: #555555;
-  --focus-background-color: #444444;
-  --focus-text-color: #ffffff;
+	--background-color: #333333;
+	--text-color: #ffffff;
+	--border-color: #ffffff;
+	--button-background-color: #444444;
+	--button-text-color: #ffffff;
+	--button-hover-background-color: #666666;
+	--grid-line-color: #555555;
+	--focus-background-color: #444444;
+	--focus-text-color: #ffffff;
 }

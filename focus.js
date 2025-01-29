@@ -35,6 +35,21 @@ class Focus {
 		this.x += x;
 		this.y += y;
 	}
+	setRelativeFocus(relative_position_focus_pointer) {
+		if (relative_position_focus_pointer == null) {
+			return;
+		}
+		else if (relative_position_focus_pointer.relative_position_focus_pointer === this) {
+			alert("Warning: Circular reference detected. The relative focus pointer cannot be set to create a circular reference.");
+			return;
+		}
+		const { x: old_relative_x, y: old_relative_y } = this.relative_position_focus_pointer ? this.relative_position_focus_pointer.getPosition() : { x: 0, y: 0 };
+		const { x: new_relative_x, y: new_relative_y } = relative_position_focus_pointer.getPosition();
+		const DeltaX = new_relative_x - old_relative_x;
+		const DeltaY = new_relative_y - old_relative_y;
+		this.changePosition(DeltaX, DeltaY);
+		this.relative_position_focus_pointer = relative_position_focus_pointer;
+	}
 
 	static fromPointer(relative_position_focus_pointer, x=0, y=6) {
 		let new_focus = new Focus(
