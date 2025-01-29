@@ -6,7 +6,7 @@
   <title>Draggable Tree</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="dark-mode">
   <div class="container">
     <div class="sidebar">
       <div>
@@ -23,9 +23,16 @@
         <select id="relativePosition">
           <!-- Options will be populated dynamically -->
         </select><br><br>
+		<label for="prerequisites">Prerequisites:</label>
+		<div id="prerequisites">
+		
+		</div>
+		<button id="addPrerequisiteGroup">Add Prerequisite Group</button>
+		<br><br>
         <button id="saveChanges">Save Changes</button>
         <button id="createNextFocus">Create Next Focus</button>
         <button id="chooseIcon">Choose Icon</button>
+		
       </div>
     </div>
     <div class="main">
@@ -35,7 +42,7 @@
   <div id="iconOverlay" class="overlay">
     <div class="overlay-content">
       <h3>Select Icon</h3>
-      <div id="iconGrid">
+      <div id="iconGrid" class="icon-grid">
         <!-- Icons will be populated dynamically -->
       </div>
       <button id="closeOverlay">Close</button>

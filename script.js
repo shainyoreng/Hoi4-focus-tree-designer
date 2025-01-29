@@ -11,7 +11,7 @@ const context = canvas.getContext('2d');
 const width = canvas.width;
 const height = canvas.height;
 
-const gridSize = 20;
+const gridSize = 27;
 let gridSnap = true;
 
 const toggleGridSnapButton = document.getElementById('toggleGridSnap');
@@ -68,10 +68,13 @@ const drawFocuses = () => {
     const img = new Image();
     img.src = focus.icon;
     img.onload = () => {
-      context.drawImage(img, pos.x + 5, pos.y + 5, 40, 40);
+      context.drawImage(img, pos.x + focusPixelWidth/2 -  focusPixelHeight*0.4, pos.y + 5, focusPixelHeight*0.8, focusPixelHeight*0.8);
     };
     context.fillStyle = getComputedStyle(document.body).getPropertyValue('--focus-text-color');
-    context.fillText(focus.name, pos.x + 50, pos.y + 25);
+	context.textAlign = 'center';
+	context.textBaseline = 'bottom';
+	context.font = '12px Arial';
+	context.fillText(focus.name, pos.x + focusPixelWidth / 2, pos.y + focusPixelHeight);
   });
 };
 
@@ -86,6 +89,98 @@ const relativePositionSelect = document.getElementById('relativePosition');
 const saveChangesButton = document.getElementById('saveChanges');
 
 let selectedFocus = null;
+
+const prerequisitesContainer = document.getElementById('prerequisites');
+const addPrerequisiteGroupButton = document.getElementById('addPrerequisiteGroup');
+
+const updatePrerequisiteOptions = (selectElement) => {
+  selectElement.innerHTML = '';
+  focuses.forEach((focus, index) => {
+    const option = document.createElement('option');
+    option.value = index;
+    option.text = focus.name;
+    selectElement.appendChild(option);
+  });
+};
+
+const addPrerequisite = (groupElement) => {
+	const selectElement = document.createElement('select');
+	selectElement.classList.add('prerequisite');
+	updatePrerequisiteOptions(selectElement);
+	groupElement.insertBefore(selectElement, groupElement.querySelector('.add-prerequisite'));
+};
+
+const addPrerequisiteGroup = () => {
+	const groupElement = document.createElement('div');
+	groupElement.classList.add('prerequisite-group');
+	addPrerequisite(groupElement);
+	const addButton = document.createElement('button');
+	addButton.textContent = '+';
+	addButton.classList.add('add-prerequisite');
+	addButton.addEventListener('click', () => addPrerequisite(groupElement));
+	const deleteButton = document.createElement('button');
+	deleteButton.textContent = '-';
+	deleteButton.classList.add('delete-prerequisite');
+	deleteButton.addEventListener('click', () => {
+	  const prerequisites = groupElement.querySelectorAll('.prerequisite');
+	  if (prerequisites.length > 1) {
+	    prerequisites[prerequisites.length - 1].remove();
+	  } else {
+	    groupElement.remove();
+	  }
+	});
+	groupElement.appendChild(addButton);
+	groupElement.appendChild(deleteButton);
+	prerequisitesContainer.appendChild(groupElement);
+};
+
+addPrerequisiteGroupButton.addEventListener('click', addPrerequisiteGroup);
+
+const loadPrerequisites = (focus) => {
+  prerequisitesContainer.innerHTML = '';
+  focus.prerequisite.forEach(group => {
+    const groupElement = document.createElement('div');
+    groupElement.classList.add('prerequisite-group');
+    group.forEach(prerequisite => {
+      const selectElement = document.createElement('select');
+      selectElement.classList.add('prerequisite');
+      updatePrerequisiteOptions(selectElement);
+      selectElement.value = focuses.indexOf(prerequisite);
+      groupElement.appendChild(selectElement);
+    });
+    const addButton = document.createElement('button');
+    addButton.textContent = '+';
+    addButton.classList.add('add-prerequisite');
+    addButton.addEventListener('click', () => addPrerequisite(groupElement));
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = '-';
+    deleteButton.classList.add('delete-prerequisite');
+    deleteButton.addEventListener('click', () => {
+      const prerequisites = groupElement.querySelectorAll('.prerequisite');
+      if (prerequisites.length > 1) {
+        prerequisites[prerequisites.length - 1].remove();
+      } else {
+        groupElement.remove();
+      }
+    });
+    groupElement.appendChild(addButton);
+    groupElement.appendChild(deleteButton);
+    prerequisitesContainer.appendChild(groupElement);
+  });
+};
+
+const savePrerequisites = (focus) => {
+  focus.prerequisite = [];
+  const groups = prerequisitesContainer.querySelectorAll('.prerequisite-group');
+  groups.forEach(group => {
+    const prerequisites = [];
+    const selects = group.querySelectorAll('.prerequisite');
+    selects.forEach(select => {
+      prerequisites.push(focuses[select.value]);
+    });
+    focus.prerequisite.push(prerequisites);
+  });
+};
 
 const openInspectorMenu = (focus) => {
   selectedFocus = focus;
@@ -110,6 +205,8 @@ const openInspectorMenu = (focus) => {
     }
   });
 
+  loadPrerequisites(focus);
+
   inspectorMenu.style.display = 'block';
 };
 
@@ -125,6 +222,7 @@ saveChangesButton.addEventListener('click', () => {
     selectedFocus.name = focusNameInput.value;
     console.log(focuses[relativePositionSelect.value].name);
     selectedFocus.setRelativeFocus(focuses[relativePositionSelect.value]);
+    savePrerequisites(selectedFocus);
     drawFocuses();
     closeInspectorMenu();
   }
@@ -211,7 +309,7 @@ closeOverlayButton.addEventListener('click', () => {
 const populateIconGrid = async () => {
   iconGrid.innerHTML = '';
   const icons = await getIconNames('icons');
-  icons.forEach(icon => {
+  icons.forEach((icon, index) => {
     const img = document.createElement('img');
     img.src = `icons/${icon}`;
     img.alt = icon;
@@ -222,7 +320,12 @@ const populateIconGrid = async () => {
         iconOverlay.style.display = 'none';
       }
     });
-    iconGrid.appendChild(img);
+    if (index % 6 === 0) {
+      const row = document.createElement('div');
+      row.classList.add('icon-row');
+      iconGrid.appendChild(row);
+    }
+    iconGrid.lastChild.appendChild(img);
   });
 };
 
