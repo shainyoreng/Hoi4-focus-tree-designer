@@ -25,10 +25,20 @@
         </select><br><br>
         <button id="saveChanges">Save Changes</button>
         <button id="createNextFocus">Create Next Focus</button>
+        <button id="chooseIcon">Choose Icon</button>
       </div>
     </div>
     <div class="main">
       <canvas id="treeCanvas" width="800" height="600"></canvas>
+    </div>
+  </div>
+  <div id="iconOverlay" class="overlay">
+    <div class="overlay-content">
+      <h3>Select Icon</h3>
+      <div id="iconGrid">
+        <!-- Icons will be populated dynamically -->
+      </div>
+      <button id="closeOverlay">Close</button>
     </div>
   </div>
   <script src="https://d3js.org/d3.v7.min.js"></script>
