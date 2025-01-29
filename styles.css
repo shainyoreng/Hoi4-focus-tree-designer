@@ -1,14 +1,20 @@
+h1 {
+	text-align: center;
+	display: inline;
+	
+}
 body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	height: 100vh;
 	margin: 0;
-	background-color: var(--background-color);
+	background-color: linear-gradient(to right, #f0f0f0, #e0e0e0);
 	color: var(--text-color);
 }
 
 canvas {
+	display: inline;
 	border: 0.1em solid var(--border-color);
 }
 
@@ -72,7 +78,7 @@ button:hover {
 }
 
 #inspectorMenu button {
-	width: 49%;
+	width: 100%;
 	padding: 0.4em;
 	background-color: var(--button-background-color);
 	color: var(--button-text-color);
@@ -102,6 +108,7 @@ button:hover {
 
 .main {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 80%;
@@ -225,13 +232,13 @@ button:hover {
 
 /* Dark mode colors */
 body.dark-mode {
-	--background-color: #333333;
+	--background-color: #040D12;
 	--text-color: #ffffff;
 	--border-color: #ffffff;
-	--button-background-color: #444444;
+	--button-background-color: #344955;
 	--button-text-color: #ffffff;
-	--button-hover-background-color: #666666;
-	--grid-line-color: #555555;
-	--focus-background-color: #444444;
+	--button-hover-background-color: #50727B;
+	--grid-line-color: #232D3F;
+	--focus-background-color: #344955;
 	--focus-text-color: #ffffff;
 }

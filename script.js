@@ -79,6 +79,7 @@ const drawFocuses = () => {
           context.setLineDash([]);
         }
         context.stroke();
+		context.setLineDash([]);
       });
     });
   });
