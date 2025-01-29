@@ -1,6 +1,8 @@
 import { Focus } from './focus.js';
 import { Condition } from './condition.js';
 import { resizeCanvas, drawFocuses } from './utils/canvasUtils.js';
+import { handleToggleGridSnap, handleToggleDarkMode, handleAddPrerequisiteGroup, handleSaveChanges, handleCreateNextFocus } from './utils/buttonHandlers.js';
+import { populateIconGrid } from './utils/iconOverlay.js';
 
 const canvas = document.getElementById('treeCanvas');
 resizeCanvas(canvas);
@@ -13,7 +15,7 @@ let gridSnap = true;
 
 const toggleGridSnapButton = document.getElementById('toggleGridSnap');
 toggleGridSnapButton.addEventListener('click', () => {
-  gridSnap = !gridSnap;
+  gridSnap = handleToggleGridSnap(gridSnap);
 });
 
 const snapToGrid = (value, gridSize) => {
@@ -90,7 +92,7 @@ const addPrerequisiteGroup = () => {
 	prerequisitesContainer.appendChild(groupElement);
 };
 
-addPrerequisiteGroupButton.addEventListener('click', addPrerequisiteGroup);
+addPrerequisiteGroupButton.addEventListener('click', () => handleAddPrerequisiteGroup(addPrerequisiteGroup));
 
 const loadPrerequisites = (focus) => {
   prerequisitesContainer.innerHTML = '';
@@ -114,7 +116,7 @@ const loadPrerequisites = (focus) => {
     deleteButton.addEventListener('click', () => {
       const prerequisites = groupElement.querySelectorAll('.prerequisite');
       if (prerequisites.length > 1) {
-        prerequisites[prquisites.length - 1].remove();
+        prerequisites[prerequisites.length - 1].remove();
       } else {
         groupElement.remove();
       }
@@ -252,27 +254,11 @@ const closeInspectorMenu = () => {
   }
 };
 
-saveChangesButton.addEventListener('click', () => {
-  if (selectedFocus) {
-    selectedFocus.name = focusNameInput.value;
-    selectedFocus.setRelativeFocus(focuses[relativePositionSelect.value]);
-    savePrerequisites(selectedFocus);
-    saveAvailabilityConditions(selectedFocus);
-    drawFocuses(context, focuses, gridSize, focusPixelWidth, focusPixelHeight);
-    closeInspectorMenu();
-  }
-});
+saveChangesButton.addEventListener('click', () => handleSaveChanges(selectedFocus, focusNameInput, relativePositionSelect, focuses, savePrerequisites, saveAvailabilityConditions, drawFocuses, context, gridSize, focusPixelWidth, focusPixelHeight, closeInspectorMenu));
 
 const createNextFocusButton = document.getElementById('createNextFocus');
 
-createNextFocusButton.addEventListener('click', () => {
-  if (selectedFocus) {
-    const newFocus = Focus.fromPointer(selectedFocus);
-    focuses.push(newFocus);
-    drawFocuses(context, focuses, gridSize, focusPixelWidth, focusPixelHeight);
-    closeInspectorMenu();
-  }
-});
+createNextFocusButton.addEventListener('click', () => handleCreateNextFocus(selectedFocus, Focus, focuses, drawFocuses, context, gridSize, focusPixelWidth, focusPixelHeight, closeInspectorMenu));
 
 // Close inspector menu when clicking outside of it
 document.addEventListener('click', (e) => {
@@ -320,7 +306,7 @@ canvas.addEventListener('mouseup', () => {
 
 const toggleDarkModeButton = document.getElementById('toggleDarkMode');
 toggleDarkModeButton.addEventListener('click', () => {
-  document.body.classList.toggle('dark-mode');
+  handleToggleDarkMode();
   drawFocuses(context, focuses, gridSize, focusPixelWidth, focusPixelHeight);
 });
 
@@ -331,7 +317,7 @@ const closeOverlayButton = document.getElementById('closeOverlay');
 
 chooseIconButton.addEventListener('click', () => {
   iconOverlay.style.display = 'flex';
-  populateIconGrid();
+  populateIconGrid(iconGrid, selectedFocus, drawFocuses, context, focuses, gridSize, focusPixelWidth, focusPixelHeight, iconOverlay);
 });
 
 closeOverlayButton.addEventListener('click', () => {
@@ -340,42 +326,3 @@ closeOverlayButton.addEventListener('click', () => {
     inspectorMenu.style.display = 'block';
   }
 });
-
-const populateIconGrid = async () => {
-  iconGrid.innerHTML = '';
-  const icons = await getIconNames('icons');
-  icons.forEach((icon, index) => {
-    const img = document.createElement('img');
-    img.src = `icons/${icon}`;
-    img.alt = icon;
-    img.addEventListener('click', () => {
-      if (selectedFocus) {
-        selectedFocus.icon = `icons/${icon}`;
-        drawFocuses(context, focuses, gridSize, focusPixelWidth, focusPixelHeight);
-        iconOverlay.style.display = 'none';
-      }
-    });
-    if (index % 6 === 0) {
-      const row = document.createElement('div');
-      row.classList.add('icon-row');
-      iconGrid.appendChild(row);
-    }
-    iconGrid.lastChild.appendChild(img);
-  });
-};
-
-const getIconNames = async (dir) => {
-  try {
-    const response = await fetch(dir);
-    const text = await response.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, 'text/html');
-    const icons = Array.from(doc.querySelectorAll('a'))
-      .map(link => link.href.split('/').pop())
-      .filter(name => name.endsWith('.png'));
-    return icons;
-  } catch (err) {
-    console.error('Error fetching icons:', err);
-    return [];
-  }
-};
