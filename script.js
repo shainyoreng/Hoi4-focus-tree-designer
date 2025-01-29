@@ -51,7 +51,6 @@ const focuses = [new Focus("Root")];
 focuses.push(Focus.fromPointer(focuses[0]));
 focuses[1].name = 'children';
 
-console.log(focuses[1].getPosition());
 // Draw focuses as rectangles with names
 const drawFocuses = () => {
   context.clearRect(0, 0, width, height);
@@ -220,7 +219,6 @@ const closeInspectorMenu = () => {
 saveChangesButton.addEventListener('click', () => {
   if (selectedFocus) {
     selectedFocus.name = focusNameInput.value;
-    console.log(focuses[relativePositionSelect.value].name);
     selectedFocus.setRelativeFocus(focuses[relativePositionSelect.value]);
     savePrerequisites(selectedFocus);
     drawFocuses();

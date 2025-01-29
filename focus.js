@@ -62,7 +62,6 @@ class Focus {
 		);
 		new_focus.setPosition(x, y);
 		new_focus.relative_position_focus_pointer = relative_position_focus_pointer;
-		console.log(new_focus.getPosition());
 
 		return new_focus;
 	}

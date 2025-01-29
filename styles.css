@@ -73,7 +73,7 @@ button:hover {
 
 #inspectorMenu button {
 	width: 100%;
-	padding: 1em;
+	padding: 0.4em;
 	background-color: var(--button-background-color);
 	color: var(--button-text-color);
 	border: none;
