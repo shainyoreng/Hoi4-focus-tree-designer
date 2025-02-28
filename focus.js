@@ -1,7 +1,7 @@
 import { Condition } from './condition.js';
 
 class Focus {
-  constructor(name, children = [], prerequisite = [], available = [], bypass = [], icon = 'icons/goal_unknown.png') {
+  constructor(name, children = [], prerequisite = [], available = [], bypass = [], icon = 'icons/goal_unknown.png', cost = 5) {
     this.name = name;
     this.x = 0;
     this.y = 0;
@@ -10,6 +10,7 @@ class Focus {
     this.available = available;
     this.bypass = bypass;
     this.icon = icon;
+    this.cost = cost;
   }
 
     getPosition() {
@@ -58,7 +59,8 @@ class Focus {
 			[],
 			[[relative_position_focus_pointer]],
 			[],
-			[]
+			[],
+			5
 		);
 		new_focus.setPosition(x, y);
 		new_focus.relative_position_focus_pointer = relative_position_focus_pointer;

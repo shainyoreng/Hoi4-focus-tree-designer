@@ -13,6 +13,7 @@ const handleAddPrerequisiteGroup = (addPrerequisiteGroup) => {
 const handleSaveChanges = (selectedFocus, focusNameInput, relativePositionSelect, focuses, savePrerequisites, saveAvailabilityConditions, drawFocuses, context, gridSize, focusPixelWidth, focusPixelHeight, closeInspectorMenu) => {
   if (selectedFocus) {
     selectedFocus.name = focusNameInput.value;
+	selectedFocus.cost = parseInt(focusCostInput.value, 10);
     selectedFocus.setRelativeFocus(focuses[relativePositionSelect.value]);
     savePrerequisites(selectedFocus);
     saveAvailabilityConditions(selectedFocus);

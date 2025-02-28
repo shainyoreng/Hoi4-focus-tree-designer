@@ -44,6 +44,14 @@ const focusNameInput = document.getElementById('focusName');
 const relativePositionSelect = document.getElementById('relativePosition');
 const saveChangesButton = document.getElementById('saveChanges');
 
+const focusCostInput = document.getElementById('focusCost');
+const focusCostValue = document.getElementById('focusCostValue');
+
+// Update the displayed cost value when the slider is moved
+focusCostInput.addEventListener('input', () => {
+  focusCostValue.textContent = focusCostInput.value;
+});
+
 let selectedFocus = null;
 
 const prerequisitesContainer = document.getElementById('prerequisites');
@@ -222,6 +230,8 @@ const openInspectorMenu = (focus) => {
   selectedFocus = focus;
   console.log(selectedFocus.name);
   focusNameInput.value = focus.name;
+  focusCostInput.value = focus.cost || 0;
+  focusCostValue.textContent = focus.cost || 0;
   relativePositionSelect.innerHTML = '';
   
   const noneOption = document.createElement('option');
@@ -253,6 +263,7 @@ const closeInspectorMenu = () => {
     selectedFocus = null;
   }
 };
+
 
 saveChangesButton.addEventListener('click', () => handleSaveChanges(selectedFocus, focusNameInput, relativePositionSelect, focuses, savePrerequisites, saveAvailabilityConditions, drawFocuses, context, gridSize, focusPixelWidth, focusPixelHeight, closeInspectorMenu));
 
@@ -325,4 +336,41 @@ closeOverlayButton.addEventListener('click', () => {
   if (selectedFocus) {
     inspectorMenu.style.display = 'block';
   }
+});
+
+const generateCodeButton = document.getElementById('generateCode');
+
+const generateFocusTreeCode = (focuses) => {
+  let code = 'focus_tree = {\n';
+  focuses.forEach((focus, index) => {
+    const id = `XAQ_${focus.name.toLowerCase().replace(/\s+/g, '_')}`;
+    code += `\tfocus = {\n`;
+    code += `\t\tid = ${id}\n`;
+    code += `\t\ticon = ${focus.icon}\n`;
+    code += `\t\tx = ${focus.x}\n`;
+    code += `\t\ty = ${focus.y}\n`;
+    code += `\t\tprerequisite = { ${focus.prerequisite.map(group => group.map(prerequisite => `focus = XAQ_${prerequisite.name.toLowerCase().replace(/\s+/g, '_')}`).join(' ')).join(' ')} }\n`;
+    code += `\t\tmutually_exclusive = { }\n`;
+    code += `\t\tcost = ${focus.cost || 5}\n`;
+    code += `\t\tai_will_do = {\n`;
+    code += `\t\t\tfactor = 1\n`;
+    code += `\t\t}\n`;
+    code += `\t\tbypass = {\n`;
+    code += `\t\t}\n`;
+    code += `\t\tcancel_if_invalid = yes\n`;
+    code += `\t\tcontinue_if_invalid = no\n`;
+    code += `\t\tcompletion_reward = {\n`;
+    code += `\t\t\tadd_political_power = 150\n`;
+    code += `\t\t\tadd_stability = 0.05\n`;
+    code += `\t\t}\n`;
+    code += `\t}\n`;
+  });
+  code += '}';
+  return code;
+};
+
+generateCodeButton.addEventListener('click', () => {
+  const code = generateFocusTreeCode(focuses);
+  console.log(code);
+  alert('Focus tree code generated. Check the console for the output.');
 });
